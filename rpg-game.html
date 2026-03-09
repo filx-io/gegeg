@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ShadowRealm RPG</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #050810;
+    --bg-card: #0c1020;
+    --bg-panel: #0f1628;
+    --bg-elevated: #141d35;
+    --accent-gold: #d4a843;
+    --accent-gold-light: #f0c96a;
+    --accent-crimson: #c0392b;
+    --accent-crimson-light: #e74c3c;
+    --accent-blue: #1e6fa8;
+    --accent-cyan: #00bcd4;
+    --accent-purple: #7b2fbe;
+    --accent-green: #27ae60;
+    --text-primary: #e8dcc8;
+    --text-secondary: #8a9bb5;
+    --text-dim: #4a5568;
+    --border-glow: rgba(212, 168, 67, 0.3);
+    --border-subtle: rgba(255,255,255,0.06);
+    --nav-h: 70px;
+    --max-w: 430px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Raleway', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+
+  #app {
+    width: 100%;
+    max-width: var(--max-w);
+    min-height: 100vh;
+    position: relative;
+    background: var(--bg-deep);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* BACKGROUND EFFECTS */
+  .bg-stars {
+    position: fixed;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: var(--max-w); height: 100vh;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--min-op); transform: scale(1); }
+    50% { opacity: var(--max-op); transform: scale(1.3); }
+  }
+
+  /* TOP BAR */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: linear-gradient(180deg, rgba(5,8,16,0.98) 0%, rgba(5,8,16,0.85) 100%);
+    border-bottom: 1px solid var(--border-subtle);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .topbar-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--accent-gold);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(212,168,67,0.5);
+  }
+
+  .topbar-stats {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .stat-chip .icon { font-size: 13px; }
+
+  /* MAIN CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: calc(var(--nav-h) + 10px);
+    position: relative;
+    z-index: 1;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* SCREENS */
+  .screen { display: none; animation: fadeUp 0.35s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* HERO BANNER */
+  .hero-banner {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  .hero-banner-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0f2e 0%, #1a0a2e 50%, #0a1a1e 100%);
+  }
+
+  .hero-banner-character {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    font-size: 100px;
+    line-height: 1;
+    filter: drop-shadow(0 0 30px rgba(212,168,67,0.4));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+  }
+
+  .hero-banner-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(5,8,16,1) 0%, transparent 60%);
+  }
+
+  .hero-banner-info {
+    position: absolute;
+    top: 14px; left: 16px; right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .hero-name {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-gold-light);
+    text-shadow: 0 0 15px rgba(212,168,67,0.6);
+  }
+
+  .hero-class {
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .level-badge {
+    background: linear-gradient(135deg, var(--accent-gold), #a07820);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a0f00;
+    letter-spacing: 1px;
+  }
+
+  .hero-bars {
+    position: absolute;
+    bottom: 28px; left: 16px; right: 16px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .bar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    width: 22px;
+    text-align: center;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+    position: relative;
+  }
+
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 0 3px 3px 0;
+    filter: blur(2px);
+  }
+
+  .bar-hp { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .bar-mp { background: linear-gradient(90deg, #1565c0, #2196f3); }
+  .bar-xp { background: linear-gradient(90deg, #d4a843, #f0c96a); }
+
+  .bar-val {
+    font-size: 10px;
+    color: var(--text-secondary);
+    width: 50px;
+    text-align: right;
+  }
+
+  /* SECTION */
+  .section {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-subtle);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:active { transform: scale(0.97); }
+
+  .card-glow-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 1px solid rgba(212,168,67,0.3);
+    pointer-events: none;
+  }
+
+  /* BATTLE CARDS */
+  .battle-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 16px 16px;
+  }
+
+  .battle-card {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    height: 110px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .battle-card:active { transform: scale(0.97); }
+
+  .battle-card-bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .battle-card-overlay {
+    position: absolute; inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 14px;
+  }
+
+  .battle-card-icon {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 52px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  }
+
+  .battle-card-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    width: fit-content;
+  }
+
+  .tag-normal { background: rgba(39,174,96,0.3); color: #6ee7a4; border: 1px solid rgba(39,174,96,0.4); }
+  .tag-epic { background: rgba(123,47,190,0.3); color: #c084fc; border: 1px solid rgba(123,47,190,0.4); }
+  .tag-pvp { background: rgba(192,57,43,0.3); color: #fca5a5; border: 1px solid rgba(192,57,43,0.4); }
+
+  .battle-card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+
+  .battle-card-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 2px;
+  }
+
+  /* QUICK RESOURCES */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 0 16px 16px;
+  }
+
+  .resource-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .resource-item:active { transform: scale(0.95); background: var(--bg-elevated); }
+
+  .resource-icon { font-size: 22px; margin-bottom: 4px; }
+  .resource-val { font-size: 13px; font-weight: 700; color: var(--accent-gold-light); }
+  .resource-name { font-size: 9px; color: var(--text-dim); letter-spacing: 0.5px; margin-top: 2px; text-transform: uppercase; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--max-w);
+    height: var(--nav-h);
+    background: rgba(7, 10, 20, 0.97);
+    border-top: 1px solid var(--border-subtle);
+    backdrop-filter: blur(20px);
+    display: flex;
+    z-index: 100;
+    padding: 0 4px;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    position: relative;
+    padding: 6px 0;
+    transition: all 0.2s;
+  }
+
+  .nav-item:active { transform: scale(0.92); }
+
+  .nav-icon {
+    font-size: 22px;
+    line-height: 1;
+    transition: all 0.2s;
+    filter: grayscale(1) brightness(0.5);
+  }
+
+  .nav-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: all 0.2s;
+  }
+
+  .nav-item.active .nav-icon { filter: none; }
+  .nav-item.active .nav-label { color: var(--accent-gold); }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 2px;
+    background: var(--accent-gold);
+    border-radius: 0 0 2px 2px;
+    box-shadow: 0 0 10px var(--accent-gold);
+  }
+
+  /* === GUILD SCREEN === */
+  .guild-banner {
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a1628 0%, #1a0a28 100%);
+    margin-bottom: 4px;
+  }
+
+  .guild-banner-icon { font-size: 60px; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); }
+  .guild-banner-info { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); text-align: right; }
+  .guild-name { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--accent-gold-light); }
+  .guild-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .guild-rank { display: inline-block; background: rgba(212,168,67,0.2); border: 1px solid rgba(212,168,67,0.4); border-radius: 6px; padding: 3px 10px; font-size: 10px; font-weight: 700; color: var(--accent-gold); margin-top: 6px; letter-spacing: 1px; }
+
+  .minigame-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 16px 16px;
+  }
+
+  .minigame-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .minigame-card:active { transform: scale(0.95); border-color: rgba(212,168,67,0.4); }
+  .minigame-icon { font-size: 36px; margin-bottom: 8px; }
+  .minigame-name { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .minigame-reward { font-size: 10px; color: var(--accent-gold); margin-top: 4px; }
+  .minigame-cd { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+
+  /* === HEROES SCREEN === */
+  .hero-profile {
+    background: linear-gradient(135deg, #0a1628, #12082a);
+    margin: 12px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(212,168,67,0.2);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-profile::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,67,0.08), transparent);
+  }
+
+  .hero-avatar { font-size: 70px; text-align: center; margin-bottom: 8px; filter: drop-shadow(0 0 20px rgba(212,168,67,0.3)); }
+  .hero-profile-name { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--accent-gold-light); text-align: center; }
+  .hero-profile-class { font-size: 11px; color: var(--text-secondary); text-align: center; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+  .hero-prof-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .prof-stat { text-align: center; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 6px; border: 1px solid var(--border-subtle); }
+  .prof-stat-val { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--accent-gold-light); }
+  .prof-stat-label { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+  /* STATS ALLOCATOR */
+  .stat-allocator {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    margin: 0 16px 12px;
+    overflow: hidden;
+  }
+
+  .stat-alloc-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-alloc-title { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .stat-points { font-size: 12px; color: var(--accent-gold); font-weight: 700; }
+
+  .stat-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 10px;
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-icon { font-size: 18px; width: 28px; text-align: center; }
+  .stat-name { font-size: 12px; font-weight: 600; color: var(--text-primary); flex: 1; }
+  .stat-current { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 700; color: var(--accent-gold-light); width: 36px; text-align: center; }
+  .stat-btn { width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .stat-btn-minus { background: rgba(192,57,43,0.2); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+  .stat-btn-plus { background: rgba(39,174,96,0.2); color: #6ee7a4; border: 1px solid rgba(39,174,96,0.3); }
+  .stat-btn:active { transform: scale(0.9); }
+
+  /* EQUIPMENT */
+  .equip-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 0 16px 12px;
+  }
+
+  .equip-slot {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .equip-slot:active { transform: scale(0.95); border-color: rgba(212,168,67,0.4); }
+  .equip-slot-icon { font-size: 28px; margin-bottom: 4px; }
+  .equip-slot-name { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .equip-slot-item { font-size: 10px; color: var(--accent-gold); font-weight: 600; margin-top: 2px; }
+
+  .rarity-rare { border-color: rgba(33,150,243,0.4) !important; }
+  .rarity-epic { border-color: rgba(123,47,190,0.4) !important; }
+  .rarity-legend { border-color: rgba(212,168,67,0.5) !important; box-shadow: 0 0 10px rgba(212,168,67,0.15); }
+
+  /* === QUESTS SCREEN === */
+  .quest-tabs {
+    display: flex;
+    padding: 0 16px;
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .quest-tab {
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+
+  .quest-tab.active { background: var(--accent-gold); color: #1a0f00; border-color: transparent; }
+
+  .quest-list { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+
+  .quest-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .quest-item:active { transform: scale(0.98); border-color: rgba(212,168,67,0.3); }
+  .quest-item-icon { font-size: 28px; flex-shrink: 0; }
+  .quest-item-info { flex: 1; }
+  .quest-item-name { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .quest-item-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+  .quest-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .quest-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light));
+    transition: width 0.8s ease;
+  }
+
+  .quest-progress-text { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+  .quest-reward {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .reward-chip {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-gold-light);
+    background: rgba(212,168,67,0.1);
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(212,168,67,0.2);
+    white-space: nowrap;
+  }
+
+  .quest-claim-btn {
+    padding: 5px 12px;
+    background: linear-gradient(135deg, var(--accent-gold), #a07820);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #1a0f00;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+
+  .quest-claim-btn:active { transform: scale(0.93); }
+  .quest-claim-btn.done { background: rgba(39,174,96,0.2); color: #6ee7a4; border: 1px solid rgba(39,174,96,0.3); }
+
+  /* ACHIEVEMENTS */
+  .achieve-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 16px 16px;
+  }
+
+  .achieve-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .achieve-item.unlocked { border-color: rgba(212,168,67,0.4); background: rgba(212,168,67,0.05); }
+  .achieve-item:active { transform: scale(0.95); }
+  .achieve-icon { font-size: 32px; margin-bottom: 6px; filter: grayscale(0.6); }
+  .achieve-item.unlocked .achieve-icon { filter: none; }
+  .achieve-name { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+  .achieve-desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+
+  /* === ACCOUNT SCREEN === */
+  .account-profile {
+    background: linear-gradient(135deg, #0a1628, #0a0a1e);
+    margin: 12px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .account-avatar { font-size: 52px; }
+  .account-name { font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+  .account-id { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .account-server { display: inline-block; background: rgba(30,111,168,0.2); border: 1px solid rgba(30,111,168,0.4); border-radius: 6px; padding: 2px 8px; font-size: 10px; color: var(--accent-cyan); margin-top: 6px; }
+
+  /* WALLET */
+  .wallet-card {
+    background: linear-gradient(135deg, #1a1200, #2a1a00);
+    border: 1px solid rgba(212,168,67,0.35);
+    border-radius: 18px;
+    margin: 0 16px 12px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-card::before {
+    content: '◆';
+    position: absolute;
+    right: -10px; top: -10px;
+    font-size: 80px;
+    opacity: 0.05;
+    color: var(--accent-gold);
+  }
+
+  .wallet-label { font-size: 10px; color: rgba(212,168,67,0.6); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .wallet-balance { font-family: 'Cinzel Decorative', serif; font-size: 30px; font-weight: 900; color: var(--accent-gold-light); text-shadow: 0 0 20px rgba(212,168,67,0.3); }
+  .wallet-currency { font-size: 13px; color: var(--accent-gold); margin-left: 6px; font-weight: 600; }
+
+  .wallet-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .wallet-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+
+  .wallet-btn-primary { background: linear-gradient(135deg, var(--accent-gold), #a07820); color: #1a0f00; }
+  .wallet-btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-primary); border: 1px solid var(--border-subtle); }
+  .wallet-btn:active { transform: scale(0.95); }
+
+  /* CURRENCY GRID */
+  .currency-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 16px 12px;
+  }
+
+  .currency-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .currency-icon { font-size: 26px; }
+  .currency-name { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .currency-val { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+
+  /* MENU LIST */
+  .menu-list { margin: 0 16px 12px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; overflow: hidden; }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:active { background: var(--bg-elevated); }
+  .menu-item-icon { font-size: 20px; width: 30px; text-align: center; }
+  .menu-item-label { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .menu-item-value { font-size: 12px; color: var(--text-secondary); }
+  .menu-item-arrow { font-size: 12px; color: var(--text-dim); }
+
+  /* BATTLE MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-sheet {
+    width: 100%;
+    max-width: var(--max-w);
+    background: var(--bg-panel);
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    border: 1px solid var(--border-subtle);
+    border-bottom: none;
+    animation: slideUp 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle { width: 40px; height: 4px; background: var(--text-dim); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--accent-gold-light); margin-bottom: 6px; }
+  .modal-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+
+  .battle-stage {
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .battle-enemy { font-size: 80px; animation: float 2s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(192,57,43,0.5)); }
+  .battle-enemy-name { font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent-crimson-light); margin-top: 8px; }
+  .battle-enemy-hp { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .battle-hp-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; margin: 10px 0; overflow: hidden; }
+  .battle-hp-fill { height: 100%; background: linear-gradient(90deg, #c0392b, #e74c3c); border-radius: 4px; width: 75%; transition: width 0.5s ease; }
+
+  .battle-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .battle-action-btn {
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .battle-action-btn:active { transform: scale(0.93); border-color: rgba(212,168,67,0.5); }
+  .battle-action-btn.primary { background: linear-gradient(135deg, rgba(192,57,43,0.3), rgba(231,76,60,0.15)); border-color: rgba(192,57,43,0.4); }
+  .action-icon { font-size: 26px; margin-bottom: 4px; }
+  .action-name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .action-dmg { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+
+  .battle-log {
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 14px;
+    max-height: 80px;
+    overflow-y: auto;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  .log-damage { color: #e74c3c; }
+  .log-heal { color: #6ee7a4; }
+  .log-special { color: var(--accent-gold); }
+
+  /* NOTIFICATIONS */
+  .notif {
+    position: fixed;
+    top: 80px; left: 50%; transform: translateX(-50%);
+    background: rgba(12,16,32,0.97);
+    border: 1px solid rgba(212,168,67,0.4);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-gold-light);
+    z-index: 300;
+    display: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    max-width: calc(var(--max-w) - 32px);
+  }
+
+  .notif.show { display: block; animation: notifIn 0.3s ease, notifOut 0.3s ease 1.8s; }
+  @keyframes notifIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  @keyframes notifOut { from { opacity: 1; } to { opacity: 0; } }
+
+  /* DAMAGE NUMBERS */
+  .dmg-float {
+    position: fixed;
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 400;
+    animation: dmgUp 1s ease forwards;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+  @keyframes dmgUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-60px); } }
+
+  /* SCROLL CONTAINER */
+  .scroll-section { overflow-x: hidden; }
+
+  /* VIP BADGE */
+  .vip-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #2a1200, #3a2000); border: 1px solid rgba(212,168,67,0.5); border-radius: 6px; padding: 3px 10px; font-size: 10px; font-weight: 700; color: var(--accent-gold); letter-spacing: 1px; margin-top: 6px; }
+
+  /* DAILY CHECK IN */
+  .checkin-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0 16px 16px; }
+  .checkin-day { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 8px 4px; text-align: center; }
+  .checkin-day.done { border-color: rgba(39,174,96,0.5); background: rgba(39,174,96,0.1); }
+  .checkin-day.today { border-color: rgba(212,168,67,0.5); background: rgba(212,168,67,0.1); }
+  .checkin-num { font-size: 8px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .checkin-icon { font-size: 18px; margin: 2px 0; }
+  .checkin-reward { font-size: 8px; color: var(--accent-gold); font-weight: 700; }
+
+  /* TABS */
+  .hero-tabs { display: flex; padding: 0 16px; gap: 6px; margin-bottom: 14px; }
+  .hero-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); transition: all 0.2s; }
+  .hero-tab.active { background: rgba(212,168,67,0.15); color: var(--accent-gold); border-color: rgba(212,168,67,0.4); }
+</style>
+</head>
+<body>
+
+<!-- STARS BACKGROUND -->
+<div class="bg-stars" id="stars"></div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title">⚔ SHADOWREALM</div>
+    <div class="topbar-stats">
+      <div class="stat-chip"><span class="icon">⚡</span><span id="topbar-energy">87</span></div>
+      <div class="stat-chip"><span class="icon">💎</span><span id="topbar-gems">1,240</span></div>
+      <div class="stat-chip"><span class="icon">🪙</span><span id="topbar-gold">48.2K</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+
+    <!-- ====== BATTLE SCREEN ====== -->
+    <div class="screen active" id="screen-battle">
+      <div class="hero-banner">
+        <div class="hero-banner-bg"></div>
+        <div class="hero-banner-character">🧙</div>
+        <div class="hero-banner-overlay"></div>
+        <div class="hero-banner-info">
+          <div>
+            <div class="hero-name">Aiden Darkbane</div>
+            <div class="hero-class">⚔ Shadow Mage</div>
+          </div>
+          <div class="level-badge">LV. 47</div>
+        </div>
+        <div class="hero-bars">
+          <div class="bar-row">
+            <span class="bar-label" style="color:#e74c3c">HP</span>
+            <div class="bar-track"><div class="bar-fill bar-hp" style="width:72%"></div></div>
+            <span class="bar-val">720/1000</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="color:#2196f3">MP</span>
+            <div class="bar-track"><div class="bar-fill bar-mp" style="width:55%"></div></div>
+            <span class="bar-val">440/800</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label" style="color:#d4a843">XP</span>
+            <div class="bar-track"><div class="bar-fill bar-xp" style="width:83%"></div></div>
+            <span class="bar-val">8300/10K</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Quick Resources</div>
+      </div>
+      <div class="resource-grid">
+        <div class="resource-item" onclick="showNotif('🍖 +50 HP dipulihkan!')">
+          <div class="resource-icon">🍖</div>
+          <div class="resource-val">12</div>
+          <div class="resource-name">Potion</div>
+        </div>
+        <div class="resource-item" onclick="showNotif('⚡ Stamina full!')">
+          <div class="resource-icon">⚡</div>
+          <div class="resource-val">87</div>
+          <div class="resource-name">Stamina</div>
+        </div>
+        <div class="resource-item" onclick="showNotif('🛡 Shield dipasang!')">
+          <div class="resource-icon">🛡</div>
+          <div class="resource-val">3</div>
+          <div class="resource-name">Shield</div>
+        </div>
+        <div class="resource-item" onclick="showNotif('📜 Lihat buff aktif!')">
+          <div class="resource-icon">✨</div>
+          <div class="resource-val">2</div>
+          <div class="resource-name">Buff</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Choose Battle Mode</div>
+      </div>
+      <div class="battle-grid">
+        <div class="battle-card" onclick="openBattleModal('hunt')" style="background:linear-gradient(135deg,#0a1628,#0d2414)">
+          <div class="battle-card-overlay">
+            <div class="battle-card-icon">🐉</div>
+            <div class="battle-card-tag tag-normal">Normal</div>
+            <div class="battle-card-title">Hunt Monster</div>
+            <div class="battle-card-sub">Lawan monster di alam bebas • Stamina -1</div>
+          </div>
+        </div>
+        <div class="battle-card" onclick="openBattleModal('dungeon')" style="background:linear-gradient(135deg,#1a0828,#0a0818)">
+          <div class="battle-card-overlay">
+            <div class="battle-card-icon">🏰</div>
+            <div class="battle-card-tag tag-epic">Epic</div>
+            <div class="battle-card-title">Explore Dungeon</div>
+            <div class="battle-card-sub">Masuk dungeon tersembunyi • Stamina -3</div>
+          </div>
+        </div>
+        <div class="battle-card" onclick="openBattleModal('arena')" style="background:linear-gradient(135deg,#280a0a,#1e0808)">
+          <div class="battle-card-overlay">
+            <div class="battle-card-icon">⚔️</div>
+            <div class="battle-card-tag tag-pvp">PvP Arena</div>
+            <div class="battle-card-title">Arena</div>
+            <div class="battle-card-sub">Lawan hero player lain • Hadiah ranking</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== GUILD SCREEN ====== -->
+    <div class="screen" id="screen-guild">
+      <div class="guild-banner">
+        <div class="guild-banner-icon">🏯</div>
+        <div class="guild-banner-info">
+          <div class="guild-name">Iron Phoenix</div>
+          <div class="guild-sub">Level 12 Guild • 48/50 Members</div>
+          <div class="guild-rank">🥈 Rank #23 Global</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Guild Minigames</div>
+      </div>
+      <div class="minigame-grid">
+        <div class="minigame-card" onclick="showNotif('🎰 Slot dimulai!')">
+          <div class="minigame-icon">🎰</div>
+          <div class="minigame-name">Guild Slots</div>
+          <div class="minigame-reward">💎 +50 Gems</div>
+          <div class="minigame-cd">3x per hari</div>
+        </div>
+        <div class="minigame-card" onclick="showNotif('🐉 Boss Raid dimulai!')">
+          <div class="minigame-icon">🔥</div>
+          <div class="minigame-name">Boss Raid</div>
+          <div class="minigame-reward">🪙 +10,000 Gold</div>
+          <div class="minigame-cd">Reset 20:00 WIB</div>
+        </div>
+        <div class="minigame-card" onclick="showNotif('🏆 Guild War aktif!')">
+          <div class="minigame-icon">🏆</div>
+          <div class="minigame-name">Guild War</div>
+          <div class="minigame-reward">👑 Trophy + Rank</div>
+          <div class="minigame-cd">Senin & Kamis</div>
+        </div>
+        <div class="minigame-card" onclick="showNotif('🎪 Festival guild dimulai!')">
+          <div class="minigame-icon">🎪</div>
+          <div class="minigame-name">Harvest Fest</div>
+          <div class="minigame-reward">🌾 Guild Points</div>
+          <div class="minigame-cd">7 hari lagi</div>
+        </div>
+        <div class="minigame-card" onclick="showNotif('🔮 Dungeon bersama!')">
+          <div class="minigame-icon">🔮</div>
+          <div class="minigame-name">Co-op Dungeon</div>
+          <div class="minigame-reward">🗡 Rare Equipment</div>
+          <div class="minigame-cd">2x per hari</div>
+        </div>
+        <div class="minigame-card" onclick="showNotif('📦 Donasi berhasil!')">
+          <div class="minigame-icon">📦</div>
+          <div class="minigame-name">Guild Donation</div>
+          <div class="minigame-reward">⭐ Contribution</div>
+          <div class="minigame-cd">Setiap hari</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Member Activity</div>
+      </div>
+      <div style="padding: 0 16px 16px; display:flex; flex-direction:column; gap:8px;">
+        <div class="quest-item" style="cursor:default">
+          <div class="quest-item-icon">🧝</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">ElfWarrior99</div>
+            <div class="quest-item-desc" style="color:#6ee7a4">Selesai Boss Raid</div>
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">2m lalu</div>
+        </div>
+        <div class="quest-item" style="cursor:default">
+          <div class="quest-item-icon">🧙</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">ShadowMageX</div>
+            <div class="quest-item-desc" style="color:var(--accent-gold)">Donasi 5,000 Gold</div>
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">15m lalu</div>
+        </div>
+        <div class="quest-item" style="cursor:default">
+          <div class="quest-item-icon">⚔️</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">KnightBlaze</div>
+            <div class="quest-item-desc" style="color:#c084fc">Naik ke Rank #21 Arena</div>
+          </div>
+          <div style="font-size:10px;color:var(--text-dim)">1j lalu</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== HEROES SCREEN ====== -->
+    <div class="screen" id="screen-heroes">
+      <div class="hero-profile">
+        <div class="hero-avatar">🧙</div>
+        <div class="hero-profile-name">Aiden Darkbane</div>
+        <div class="hero-profile-class">✦ Shadow Mage · Level 47 ✦</div>
+        <div class="hero-prof-stats">
+          <div class="prof-stat"><div class="prof-stat-val">2,840</div><div class="prof-stat-label">Power</div></div>
+          <div class="prof-stat"><div class="prof-stat-val">47</div><div class="prof-stat-label">Level</div></div>
+          <div class="prof-stat"><div class="prof-stat-val">83%</div><div class="prof-stat-label">EXP</div></div>
+          <div class="prof-stat"><div class="prof-stat-val">1000</div><div class="prof-stat-label">Max HP</div></div>
+          <div class="prof-stat"><div class="prof-stat-val">800</div><div class="prof-stat-label">Max MP</div></div>
+          <div class="prof-stat"><div class="prof-stat-val">124</div><div class="prof-stat-label">Kills</div></div>
+        </div>
+      </div>
+
+      <div class="hero-tabs">
+        <div class="hero-tab active" onclick="setHeroTab(this,'stats')">Stats</div>
+        <div class="hero-tab" onclick="setHeroTab(this,'equip')">Equipment</div>
+        <div class="hero-tab" onclick="setHeroTab(this,'skills')">Skills</div>
+      </div>
+
+      <!-- STATS TAB -->
+      <div id="hero-tab-stats">
+        <div class="stat-allocator">
+          <div class="stat-alloc-header">
+            <div class="stat-alloc-title">⚡ Allocate Stats</div>
+            <div class="stat-points" id="stat-points-display">5 Points Free</div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon">⚔️</div>
+            <div class="stat-name">Attack</div>
+            <button class="stat-btn stat-btn-minus" onclick="changeStat('atk',-1)">−</button>
+            <div class="stat-current" id="stat-atk">48</div>
+            <button class="stat-btn stat-btn-plus" onclick="changeStat('atk',1)">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-name">Defense</div>
+            <button class="stat-btn stat-btn-minus" onclick="changeStat('def',-1)">−</button>
+            <div class="stat-current" id="stat-def">32</div>
+            <button class="stat-btn stat-btn-plus" onclick="changeStat('def',1)">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon">💨</div>
+            <div class="stat-name">Speed</div>
+            <button class="stat-btn stat-btn-minus" onclick="changeStat('spd',-1)">−</button>
+            <div class="stat-current" id="stat-spd">27</div>
+            <button class="stat-btn stat-btn-plus" onclick="changeStat('spd',1)">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon">🔮</div>
+            <div class="stat-name">Magic</div>
+            <button class="stat-btn stat-btn-minus" onclick="changeStat('mag',-1)">−</button>
+            <div class="stat-current" id="stat-mag">61</div>
+            <button class="stat-btn stat-btn-plus" onclick="changeStat('mag',1)">+</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-icon">❤️</div>
+            <div class="stat-name">Vitality</div>
+            <button class="stat-btn stat-btn-minus" onclick="changeStat('vit',-1)">−</button>
+            <div class="stat-current" id="stat-vit">40</div>
+            <button class="stat-btn stat-btn-plus" onclick="changeStat('vit',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EQUIP TAB -->
+      <div id="hero-tab-equip" style="display:none">
+        <div class="equip-grid">
+          <div class="equip-slot rarity-legend" onclick="showNotif('🗡 Void Katana · Legendary')">
+            <div class="equip-slot-icon">⚔️</div>
+            <div class="equip-slot-name">Weapon</div>
+            <div class="equip-slot-item">Void Katana</div>
+          </div>
+          <div class="equip-slot rarity-epic" onclick="showNotif('🪖 Helm of Shadows · Epic')">
+            <div class="equip-slot-icon">🪖</div>
+            <div class="equip-slot-name">Helmet</div>
+            <div class="equip-slot-item">Shadow Helm</div>
+          </div>
+          <div class="equip-slot rarity-rare" onclick="showNotif('🛡 Azure Shield · Rare')">
+            <div class="equip-slot-icon">🛡</div>
+            <div class="equip-slot-name">Shield</div>
+            <div class="equip-slot-item">Azure Shield</div>
+          </div>
+          <div class="equip-slot rarity-epic" onclick="showNotif('👘 Mage Robe · Epic')">
+            <div class="equip-slot-icon">👘</div>
+            <div class="equip-slot-name">Armor</div>
+            <div class="equip-slot-item">Dark Robe</div>
+          </div>
+          <div class="equip-slot" onclick="showNotif('💍 Slot kosong · Tap untuk equip')">
+            <div class="equip-slot-icon" style="opacity:0.3">💍</div>
+            <div class="equip-slot-name">Ring</div>
+            <div class="equip-slot-item" style="color:var(--text-dim)">Empty</div>
+          </div>
+          <div class="equip-slot rarity-rare" onclick="showNotif('👢 Iron Boots · Rare')">
+            <div class="equip-slot-icon">👢</div>
+            <div class="equip-slot-name">Boots</div>
+            <div class="equip-slot-item">Iron Boots</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILLS TAB -->
+      <div id="hero-tab-skills" style="display:none; padding:0 16px 16px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="quest-item" onclick="showNotif('🔥 Fireball · LV.5 · Damage 280%')">
+            <div class="quest-item-icon">🔥</div>
+            <div class="quest-item-info">
+              <div class="quest-item-name">Fireball</div>
+              <div class="quest-item-desc">Lempar bola api ke musuh. Damage 280% Magic</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.5</div>
+              <div style="font-size:9px;color:var(--text-dim);margin-top:2px">Max 10</div>
+            </div>
+          </div>
+          <div class="quest-item" onclick="showNotif('⚡ Thunder Strike · LV.3 · Stun 1 turn')">
+            <div class="quest-item-icon">⚡</div>
+            <div class="quest-item-info">
+              <div class="quest-item-name">Thunder Strike</div>
+              <div class="quest-item-desc">Petir area luas, ada kemungkinan stun musuh</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.3</div>
+              <div style="font-size:9px;color:var(--text-dim);margin-top:2px">Max 10</div>
+            </div>
+          </div>
+          <div class="quest-item" onclick="showNotif('🌙 Shadow Veil · LV.7 · Evade +40%')">
+            <div class="quest-item-icon">🌙</div>
+            <div class="quest-item-info">
+              <div class="quest-item-name">Shadow Veil</div>
+              <div class="quest-item-desc">Menyembunyikan diri dalam bayangan, evade +40%</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.7</div>
+              <div style="font-size:9px;color:var(--text-dim);margin-top:2px">Max 10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== QUESTS SCREEN ====== -->
+    <div class="screen" id="screen-quests">
+      <div class="section">
+        <div class="section-title">Daily Check-In</div>
+      </div>
+      <div class="checkin-grid">
+        <div class="checkin-day done"><div class="checkin-num">Sen</div><div class="checkin-icon">✅</div><div class="checkin-reward">100G</div></div>
+        <div class="checkin-day done"><div class="checkin-num">Sel</div><div class="checkin-icon">✅</div><div class="checkin-reward">💎5</div></div>
+        <div class="checkin-day done"><div class="checkin-num">Rab</div><div class="checkin-icon">✅</div><div class="checkin-reward">300G</div></div>
+        <div class="checkin-day today" onclick="showNotif('✅ Check-in hari ini diklaim!')"><div class="checkin-num">Kam</div><div class="checkin-icon">🎁</div><div class="checkin-reward">💎10</div></div>
+        <div class="checkin-day"><div class="checkin-num">Jum</div><div class="checkin-icon">🔒</div><div class="checkin-reward">500G</div></div>
+        <div class="checkin-day"><div class="checkin-num">Sab</div><div class="checkin-icon">🔒</div><div class="checkin-reward">💎15</div></div>
+        <div class="checkin-day"><div class="checkin-num">Min</div><div class="checkin-icon">👑</div><div class="checkin-reward">Chest</div></div>
+      </div>
+
+      <div style="display:flex; padding:0 16px; gap:6px; margin-bottom:14px; overflow-x:auto; scrollbar-width:none;">
+        <div class="quest-tab active" onclick="setQuestTab(this,'daily')">Daily</div>
+        <div class="quest-tab" onclick="setQuestTab(this,'weekly')">Weekly</div>
+        <div class="quest-tab" onclick="setQuestTab(this,'limited')">Limited</div>
+        <div class="quest-tab" onclick="setQuestTab(this,'achieve')">Achievements</div>
+      </div>
+
+      <!-- Daily -->
+      <div id="quest-daily" class="quest-list" style="padding-bottom:16px">
+        <div class="quest-item">
+          <div class="quest-item-icon">⚔️</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Battle 5x Hari Ini</div>
+            <div class="quest-item-desc">Menangkan pertarungan apapun</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:60%"></div></div>
+            <div class="quest-progress-text">3/5 selesai</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip">🪙 500</div>
+            <div class="reward-chip">⭐ 20</div>
+          </div>
+        </div>
+        <div class="quest-item">
+          <div class="quest-item-icon">🧪</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Craft 3 Potion</div>
+            <div class="quest-item-desc">Buat potion apapun di workshop</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:33%"></div></div>
+            <div class="quest-progress-text">1/3 selesai</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip">💎 10</div>
+          </div>
+        </div>
+        <div class="quest-item">
+          <div class="quest-item-icon">🏰</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Selesaikan Dungeon</div>
+            <div class="quest-item-desc">Masuk dan selesaikan 1 dungeon</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:100%"></div></div>
+            <div class="quest-progress-text">1/1 selesai ✓</div>
+          </div>
+          <div class="quest-reward">
+            <button class="quest-claim-btn done" onclick="showNotif('✅ Reward sudah diklaim!')">Klaim</button>
+          </div>
+        </div>
+        <div class="quest-item">
+          <div class="quest-item-icon">🤝</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Donasi ke Guild</div>
+            <div class="quest-item-desc">Berikan item atau gold ke guild</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:0%"></div></div>
+            <div class="quest-progress-text">0/1 selesai</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip">🪙 1K</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly -->
+      <div id="quest-weekly" style="display:none" class="quest-list" style="padding-bottom:16px">
+        <div class="quest-item">
+          <div class="quest-item-icon">🏆</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Reach Top 100 Arena</div>
+            <div class="quest-item-desc">Capai ranking 100 besar di PvP Arena</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:40%"></div></div>
+            <div class="quest-progress-text">Rank #247 → #100</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip">💎 50</div>
+            <div class="reward-chip">🗡 Weapon</div>
+          </div>
+        </div>
+        <div class="quest-item">
+          <div class="quest-item-icon">🐲</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">Kalahkan 3 Boss</div>
+            <div class="quest-item-desc">Selesaikan 3 dungeon boss berbeda</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:66%"></div></div>
+            <div class="quest-progress-text">2/3 selesai</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip">🪙 5K</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limited -->
+      <div id="quest-limited" style="display:none" class="quest-list" style="padding-bottom:16px">
+        <div class="quest-item" style="border-color:rgba(192,57,43,0.4);background:rgba(192,57,43,0.05)">
+          <div class="quest-item-icon">🌋</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">🔥 Fire Festival Event</div>
+            <div class="quest-item-desc">Kumpulkan 100 Ember dari Fire Dungeon</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:72%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div>
+            <div class="quest-progress-text">72/100 Ember · 3 hari lagi</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip" style="color:#fca5a5;border-color:rgba(192,57,43,0.4)">🔥 Dragon Pet</div>
+          </div>
+        </div>
+        <div class="quest-item" style="border-color:rgba(123,47,190,0.4);background:rgba(123,47,190,0.05)">
+          <div class="quest-item-icon">🌙</div>
+          <div class="quest-item-info">
+            <div class="quest-item-name">✨ Shadow Moon Event</div>
+            <div class="quest-item-desc">Menangkan 20 PvP di bulan ini</div>
+            <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:30%;background:linear-gradient(90deg,#7b2fbe,#c084fc)"></div></div>
+            <div class="quest-progress-text">6/20 wins · 12 hari lagi</div>
+          </div>
+          <div class="quest-reward">
+            <div class="reward-chip" style="color:#c084fc;border-color:rgba(123,47,190,0.4)">👘 Shadow Skin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div id="quest-achieve" style="display:none">
+        <div class="achieve-grid">
+          <div class="achieve-item unlocked"><div class="achieve-icon">⚔️</div><div class="achieve-name">First Blood</div><div class="achieve-desc">Menang pertarungan pertama</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">🏰</div><div class="achieve-name">Dungeon Diver</div><div class="achieve-desc">Selesaikan 10 dungeon</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">🤝</div><div class="achieve-name">Team Player</div><div class="achieve-desc">Bergabung dengan guild</div></div>
+          <div class="achieve-item"><div class="achieve-icon">💀</div><div class="achieve-name">Boss Slayer</div><div class="achieve-desc">Kalahkan 50 boss dungeon</div></div>
+          <div class="achieve-item"><div class="achieve-icon">👑</div><div class="achieve-name">Arena King</div><div class="achieve-desc">Capai rank #1 arena</div></div>
+          <div class="achieve-item"><div class="achieve-icon">⭐</div><div class="achieve-name">Legendary</div><div class="achieve-desc">Dapatkan item legendary</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">💎</div><div class="achieve-name">Diamond Hand</div><div class="achieve-desc">Kumpulkan 1000 gems</div></div>
+          <div class="achieve-item"><div class="achieve-icon">🌍</div><div class="achieve-name">World Conqueror</div><div class="achieve-desc">Capai level 100</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== ACCOUNT SCREEN ====== -->
+    <div class="screen" id="screen-account">
+      <div class="account-profile">
+        <div class="account-avatar">🧙‍♂️</div>
+        <div>
+          <div class="account-name">ShadowMage_47</div>
+          <div class="account-id">UID: #8472910</div>
+          <div class="account-server">🌐 Server Asia-1</div>
+          <div class="vip-badge">💎 VIP Level 4</div>
+        </div>
+      </div>
+
+      <div class="wallet-card">
+        <div class="wallet-label">Wallet Balance</div>
+        <div>
+          <span class="wallet-balance">48,200</span>
+          <span class="wallet-currency">GOLD</span>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:rgba(212,168,67,0.5)">≈ IDR 48,200 in-game value</div>
+        <div class="wallet-actions">
+          <button class="wallet-btn wallet-btn-primary" onclick="showNotif('💳 Halaman top-up dibuka!')">Top Up</button>
+          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📤 Transfer gold berhasil!')">Transfer</button>
+          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📊 Riwayat transaksi dibuka!')">History</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Currencies</div>
+      </div>
+      <div class="currency-grid">
+        <div class="currency-item">
+          <div class="currency-icon">🪙</div>
+          <div><div class="currency-name">Gold</div><div class="currency-val">48,200</div></div>
+        </div>
+        <div class="currency-item">
+          <div class="currency-icon">💎</div>
+          <div><div class="currency-name">Gems</div><div class="currency-val">1,240</div></div>
+        </div>
+        <div class="currency-item">
+          <div class="currency-icon">⭐</div>
+          <div><div class="currency-name">Star Points</div><div class="currency-val">5,800</div></div>
+        </div>
+        <div class="currency-item">
+          <div class="currency-icon">🏯</div>
+          <div><div class="currency-name">Guild Coins</div><div class="currency-val">320</div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Settings & Info</div>
+      </div>
+      <div class="menu-list">
+        <div class="menu-item" onclick="showNotif('🔔 Notifikasi diatur!')">
+          <div class="menu-item-icon">🔔</div>
+          <div class="menu-item-label">Notifications</div>
+          <div class="menu-item-value" style="color:#6ee7a4">ON</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="showNotif('🔒 Keamanan akun!')">
+          <div class="menu-item-icon">🔒</div>
+          <div class="menu-item-label">Security</div>
+          <div class="menu-item-value">2FA Active</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="showNotif('🎮 Grafik: High')">
+          <div class="menu-item-icon">🎮</div>
+          <div class="menu-item-label">Graphics Quality</div>
+          <div class="menu-item-value">High</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="showNotif('🌐 Bahasa: Indonesia')">
+          <div class="menu-item-icon">🌐</div>
+          <div class="menu-item-label">Language</div>
+          <div class="menu-item-value">Indonesia</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="showNotif('📋 Terms & Privacy!')">
+          <div class="menu-item-icon">📋</div>
+          <div class="menu-item-label">Terms & Privacy</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="showNotif('👋 Sampai jumpa lagi!')">
+          <div class="menu-item-icon">🚪</div>
+          <div class="menu-item-label" style="color:#e74c3c">Log Out</div>
+          <div class="menu-item-arrow">›</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:16px;font-size:10px;color:var(--text-dim)">ShadowRealm v2.4.1 · © 2025</div>
+    </div>
+
+  </div><!-- end content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="switchScreen('battle',this)">
+      <div class="nav-icon">⚔️</div>
+      <div class="nav-label">Battle</div>
+    </div>
+    <div class="nav-item" onclick="switchScreen('guild',this)">
+      <div class="nav-icon">🏯</div>
+      <div class="nav-label">Guild</div>
+    </div>
+    <div class="nav-item" onclick="switchScreen('heroes',this)">
+      <div class="nav-icon">🧙</div>
+      <div class="nav-label">Heroes</div>
+    </div>
+    <div class="nav-item" onclick="switchScreen('quests',this)">
+      <div class="nav-icon">📜</div>
+      <div class="nav-label">Quests</div>
+    </div>
+    <div class="nav-item" onclick="switchScreen('account',this)">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Account</div>
+    </div>
+  </div>
+</div>
+
+<!-- BATTLE MODAL -->
+<div class="modal-overlay" id="battle-modal" onclick="closeBattleModalOnBg(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Hunt Monster</div>
+    <div class="modal-sub" id="modal-sub">Pilih aksimu dalam pertarungan!</div>
+
+    <div class="battle-stage">
+      <div class="battle-enemy" id="battle-enemy-icon">🐉</div>
+      <div class="battle-enemy-name" id="battle-enemy-name">Forest Drake</div>
+      <div class="battle-enemy-hp" id="battle-enemy-hp-text">HP: 750 / 1000</div>
+      <div class="battle-hp-bar"><div class="battle-hp-fill" id="battle-hp-fill"></div></div>
+    </div>
+
+    <div class="battle-actions">
+      <div class="battle-action-btn primary" onclick="doAttack('normal')">
+        <div class="action-icon">⚔️</div>
+        <div class="action-name">Attack</div>
+        <div class="action-dmg">Dmg: 80-120</div>
+      </div>
+      <div class="battle-action-btn" onclick="doAttack('magic')">
+        <div class="action-icon">🔥</div>
+        <div class="action-name">Fireball</div>
+        <div class="action-dmg">Dmg: 150-200 · MP-30</div>
+      </div>
+      <div class="battle-action-btn" onclick="doAttack('heal')">
+        <div class="action-icon">💊</div>
+        <div class="action-name">Heal</div>
+        <div class="action-dmg">Restore 100 HP · Potion-1</div>
+      </div>
+      <div class="battle-action-btn" onclick="closeBattleModal()">
+        <div class="action-icon">🏃</div>
+        <div class="action-name">Flee</div>
+        <div class="action-dmg">Tinggalkan pertarungan</div>
+      </div>
+    </div>
+
+    <div class="battle-log" id="battle-log">
+      ⚔ Pertarungan dimulai! Pilihlah aksimu...
+    </div>
+  </div>
+</div>
+
+<script>
+  // === STARS GENERATOR ===
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    const minOp = Math.random() * 0.2 + 0.05;
+    const maxOp = minOp + Math.random() * 0.5 + 0.2;
+    star.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${(Math.random()*4+2).toFixed(1)}s;
+      --min-op:${minOp.toFixed(2)};
+      --max-op:${maxOp.toFixed(2)};
+      animation-delay:${(Math.random()*5).toFixed(1)}s;
+    `;
+    starsContainer.appendChild(star);
+  }
+
+  // === SCREEN SWITCHER ===
+  function switchScreen(name, navEl) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    navEl.classList.add('active');
+    document.querySelector('.content').scrollTop = 0;
+  }
+
+  // === NOTIFICATION ===
+  let notifTimer;
+  function showNotif(msg) {
+    const el = document.getElementById('notif');
+    el.textContent = msg;
+    el.classList.remove('show');
+    clearTimeout(notifTimer);
+    void el.offsetWidth;
+    el.classList.add('show');
+    notifTimer = setTimeout(() => el.classList.remove('show'), 2100);
+  }
+
+  // === STAT ALLOCATOR ===
+  const stats = { atk: 48, def: 32, spd: 27, mag: 61, vit: 40 };
+  let freePoints = 5;
+  const baseStats = {...stats};
+
+  function changeStat(stat, delta) {
+    if (delta > 0 && freePoints <= 0) { showNotif('❌ Tidak ada poin tersisa!'); return; }
+    if (delta < 0 && stats[stat] <= baseStats[stat]) { showNotif('❌ Tidak bisa dikurangi lebih!'); return; }
+    stats[stat] += delta;
+    freePoints -= delta;
+    document.getElementById('stat-' + stat).textContent = stats[stat];
+    document.getElementById('stat-points-display').textContent = freePoints + ' Points Free';
+    if (delta > 0) showNotif('✨ +1 ' + stat.toUpperCase() + ' ditambahkan!');
+  }
+
+  // === HERO TABS ===
+  function setHeroTab(el, tab) {
+    document.querySelectorAll('.hero-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('hero-tab-stats').style.display = tab === 'stats' ? 'block' : 'none';
+    document.getElementById('hero-tab-equip').style.display = tab === 'equip' ? 'block' : 'none';
+    document.getElementById('hero-tab-skills').style.display = tab === 'skills' ? 'block' : 'none';
+  }
+
+  // === QUEST TABS ===
+  function setQuestTab(el, tab) {
+    document.querySelectorAll('.quest-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const tabs = ['daily','weekly','limited','achieve'];
+    tabs.forEach(t => {
+      const el2 = document.getElementById('quest-' + t);
+      if (el2) el2.style.display = t === tab ? (t === 'achieve' ? 'block' : 'flex') : 'none';
+    });
+    // fix daily/weekly/limited to flex-direction:column
+    const active = document.getElementById('quest-' + tab);
+    if (active && tab !== 'achieve') { active.style.flexDirection = 'column'; }
+  }
+
+  // === BATTLE MODAL ===
+  const battleConfig = {
+    hunt: { title: '🐉 Hunt Monster', sub: 'Lawan monster di alam liar! Stamina -1', enemy: '🐉', name: 'Forest Drake', hp: 750, maxHp: 1000 },
+    dungeon: { title: '🏰 Explore Dungeon', sub: 'Masuki dungeon tersembunyi yang berbahaya! Stamina -3', enemy: '👹', name: 'Dungeon Ogre', hp: 1200, maxHp: 1500 },
+    arena: { title: '⚔️ PvP Arena', sub: 'Tantang hero player lain di arena!', enemy: '🧝', name: 'ElvenArcher_88', hp: 900, maxHp: 900 }
+  };
+
+  let currentBattle = null;
+
+  function openBattleModal(type) {
+    const cfg = battleConfig[type];
+    currentBattle = { ...cfg, currentHp: cfg.hp };
+    document.getElementById('modal-title').textContent = cfg.title;
+    document.getElementById('modal-sub').textContent = cfg.sub;
+    document.getElementById('battle-enemy-icon').textContent = cfg.enemy;
+    document.getElementById('battle-enemy-name').textContent = cfg.name;
+    updateBattleHp();
+    document.getElementById('battle-log').innerHTML = '⚔ Pertarungan dimulai! Pilihlah aksimu...';
+    document.getElementById('battle-modal').classList.add('open');
+  }
+
+  function updateBattleHp() {
+    const pct = Math.max(0, (currentBattle.currentHp / currentBattle.maxHp) * 100);
+    document.getElementById('battle-hp-fill').style.width = pct + '%';
+    document.getElementById('battle-enemy-hp-text').textContent = `HP: ${Math.max(0,currentBattle.currentHp)} / ${currentBattle.maxHp}`;
+  }
+
+  function addLog(msg) {
+    const log = document.getElementById('battle-log');
+    log.innerHTML += '<br>' + msg;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function spawnDmgNumber(dmg, color) {
+    const el = document.createElement('div');
+    el.className = 'dmg-float';
+    el.textContent = (dmg > 0 ? '-' : '+') + Math.abs(dmg);
+    el.style.color = color;
+    el.style.left = (Math.random() * 100 + 160) + 'px';
+    el.style.top = (Math.random() * 60 + 200) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+
+  function doAttack(type) {
+    if (!currentBattle) return;
+    let dmg = 0, logMsg = '';
+
+    if (type === 'normal') {
+      dmg = Math.floor(Math.random() * 40 + 80);
+      currentBattle.currentHp -= dmg;
+      logMsg = `<span class="log-damage">Kamu menyerang ${currentBattle.name} untuk ${dmg} damage!</span>`;
+      spawnDmgNumber(dmg, '#e74c3c');
+    } else if (type === 'magic') {
+      dmg = Math.floor(Math.random() * 50 + 150);
+      currentBattle.currentHp -= dmg;
+      logMsg = `<span class="log-special">🔥 Fireball menghantam ${currentBattle.name} untuk ${dmg} damage!</span>`;
+      spawnDmgNumber(dmg, '#f0c96a');
+    } else if (type === 'heal') {
+      const heal = 100;
+      logMsg = `<span class="log-heal">💊 Kamu menggunakan potion dan memulihkan ${heal} HP!</span>`;
+      spawnDmgNumber(-heal, '#6ee7a4');
+      updateBattleHp();
+      addLog(logMsg);
+      // Enemy counterattack
+      setTimeout(() => {
+        const eDmg = Math.floor(Math.random() * 30 + 40);
+        addLog(`<span class="log-damage">${currentBattle.name} menyerang balik untuk ${eDmg} damage!</span>`);
+      }, 500);
+      return;
+    }
+
+    updateBattleHp();
+    addLog(logMsg);
+
+    if (currentBattle.currentHp <= 0) {
+      setTimeout(() => {
+        const gold = Math.floor(Math.random() * 200 + 100);
+        const xp = Math.floor(Math.random() * 100 + 50);
+        addLog(`<span class="log-special">🏆 MENANG! Mendapat ${gold} Gold + ${xp} XP!</span>`);
+        showNotif(`🏆 Victory! +${gold}G +${xp}XP`);
+        setTimeout(closeBattleModal, 1500);
+      }, 400);
+      return;
+    }
+
+    // Enemy counterattack
+    setTimeout(() => {
+      const eDmg = Math.floor(Math.random() * 30 + 40);
+      addLog(`<span class="log-damage">${currentBattle.name} menyerang balik untuk ${eDmg} damage!</span>`);
+    }, 500);
+  }
+
+  function closeBattleModal() {
+    document.getElementById('battle-modal').classList.remove('open');
+  }
+
+  function closeBattleModalOnBg(e) {
+    if (e.target === document.getElementById('battle-modal')) closeBattleModal();
+  }
+</script>
+</body>
+</html>
