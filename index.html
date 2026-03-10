@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -971,6 +971,192 @@
   .hero-tabs { display: flex; padding: 0 16px; gap: 6px; margin-bottom: 14px; }
   .hero-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); transition: all 0.2s; }
   .hero-tab.active { background: rgba(212,168,67,0.15); color: var(--accent-gold); border-color: rgba(212,168,67,0.4); }
+
+  /* ===== TUTORIAL ONBOARDING ===== */
+  .tut-overlay {
+    position: fixed; inset: 0;
+    z-index: 1000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    background: rgba(0,0,0,0);
+    transition: background 0.4s ease;
+    pointer-events: none;
+  }
+  .tut-overlay.active { pointer-events: all; }
+  .tut-overlay.dim { background: rgba(0,0,0,0.78); }
+
+  /* spotlight cutout */
+  .tut-spotlight {
+    position: fixed;
+    border-radius: 16px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.78);
+    transition: all 0.4s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    z-index: 1001;
+    border: 2px solid rgba(212,168,67,0.6);
+    animation: spotPulse 2s ease-in-out infinite;
+  }
+  @keyframes spotPulse {
+    0%,100% { border-color: rgba(212,168,67,0.5); box-shadow: 0 0 0 9999px rgba(0,0,0,0.78), 0 0 20px rgba(212,168,67,0.2); }
+    50% { border-color: rgba(212,168,67,0.9); box-shadow: 0 0 0 9999px rgba(0,0,0,0.78), 0 0 30px rgba(212,168,67,0.5); }
+  }
+
+  .tut-card {
+    position: fixed;
+    left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: calc(var(--max-w) - 32px);
+    background: var(--bg-panel);
+    border: 1px solid rgba(212,168,67,0.35);
+    border-radius: 20px;
+    padding: 20px;
+    z-index: 1002;
+    animation: tutCardIn 0.35s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 -4px 40px rgba(0,0,0,0.6);
+  }
+  @keyframes tutCardIn {
+    from { opacity:0; transform: translateX(-50%) translateY(20px); }
+    to   { opacity:1; transform: translateX(-50%) translateY(0); }
+  }
+
+  .tut-step-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(212,168,67,0.12);
+    border: 1px solid rgba(212,168,67,0.3);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+  }
+
+  .tut-dots {
+    display: flex; gap: 5px; align-items: center;
+    margin-left: auto;
+  }
+  .tut-dot {
+    width: 6px; height: 6px; border-radius: 3px;
+    background: rgba(212,168,67,0.25);
+    transition: all 0.3s;
+  }
+  .tut-dot.active { width: 18px; background: var(--accent-gold); }
+
+  .tut-header { display: flex; align-items: center; margin-bottom: 10px; }
+
+  .tut-icon { font-size: 38px; margin-bottom: 6px; }
+  .tut-title {
+    font-family: 'Cinzel', serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--accent-gold-light);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .tut-desc {
+    font-size: 13px; line-height: 1.7;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+  }
+  .tut-desc strong { color: var(--text-primary); }
+  .tut-desc .highlight { color: var(--accent-gold); font-weight: 700; }
+
+  .tut-actions { display: flex; gap: 10px; }
+
+  .tut-btn-skip {
+    padding: 11px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .tut-btn-skip:active { background: var(--bg-elevated); }
+
+  .tut-btn-next {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent-gold), #a07820);
+    color: #1a0f00;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tut-btn-next:active { transform: scale(0.96); }
+
+  /* Welcome screen (step 0) */
+  .tut-welcome {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg-deep);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px;
+    animation: fadeIn 0.5s ease;
+  }
+  .tut-welcome-logo {
+    font-size: 80px;
+    filter: drop-shadow(0 0 30px rgba(212,168,67,0.5));
+    animation: float 3s ease-in-out infinite;
+    margin-bottom: 24px;
+  }
+  .tut-welcome-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 22px; font-weight: 900;
+    color: var(--accent-gold-light);
+    text-align: center;
+    text-shadow: 0 0 30px rgba(212,168,67,0.5);
+    margin-bottom: 8px;
+  }
+  .tut-welcome-sub {
+    font-size: 13px; color: var(--text-secondary);
+    text-align: center; line-height: 1.7;
+    margin-bottom: 40px; max-width: 300px;
+  }
+  .tut-welcome-btn {
+    width: 100%; max-width: 280px;
+    padding: 16px;
+    border-radius: 16px; border: none;
+    background: linear-gradient(135deg, var(--accent-gold), #a07820);
+    color: #1a0f00; font-size: 15px; font-weight: 800;
+    letter-spacing: 1px; cursor: pointer;
+    font-family: 'Cinzel', serif;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(212,168,67,0.3);
+  }
+  .tut-welcome-btn:active { transform: scale(0.96); }
+  .tut-welcome-skip {
+    margin-top: 14px; font-size: 12px;
+    color: var(--text-dim); cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* reward popup */
+  .tut-reward-popup {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%,-50%) scale(0.8);
+    background: linear-gradient(135deg, #1a1200, #2a1a00);
+    border: 1px solid rgba(212,168,67,0.5);
+    border-radius: 20px;
+    padding: 28px 32px;
+    text-align: center;
+    z-index: 1100;
+    display: none;
+    box-shadow: 0 0 60px rgba(212,168,67,0.2);
+  }
+  .tut-reward-popup.show {
+    display: block;
+    animation: rewardPop 0.4s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes rewardPop {
+    from { opacity:0; transform: translate(-50%,-50%) scale(0.7); }
+    to   { opacity:1; transform: translate(-50%,-50%) scale(1); }
+  }
+  .tut-reward-icon { font-size: 52px; margin-bottom: 8px; }
+  .tut-reward-title { font-family:'Cinzel',serif; font-size:18px; font-weight:700; color:var(--accent-gold-light); margin-bottom:6px; }
+  .tut-reward-desc { font-size:12px; color:var(--text-secondary); margin-bottom:18px; line-height:1.6; }
+  .tut-reward-btn { padding:12px 32px; border-radius:12px; border:none; background:linear-gradient(135deg,var(--accent-gold),#a07820); color:#1a0f00; font-size:13px; font-weight:800; cursor:pointer; letter-spacing:0.5px; }
 </style>
 </head>
 <body>
@@ -1031,22 +1217,22 @@
         <div class="section-title">Quick Resources</div>
       </div>
       <div class="resource-grid">
-        <div class="resource-item" onclick="showNotif('🍖 +50 HP dipulihkan!')">
+        <div class="resource-item" onclick="showNotif('🍖 +50 HP restored!')">
           <div class="resource-icon">🍖</div>
           <div class="resource-val">12</div>
           <div class="resource-name">Potion</div>
         </div>
-        <div class="resource-item" onclick="showNotif('⚡ Stamina full!')">
+        <div class="resource-item" onclick="showNotif('⚡ Stamina is full!')">
           <div class="resource-icon">⚡</div>
           <div class="resource-val">87</div>
           <div class="resource-name">Stamina</div>
         </div>
-        <div class="resource-item" onclick="showNotif('🛡 Shield dipasang!')">
+        <div class="resource-item" onclick="showNotif('🛡 Shield equipped!')">
           <div class="resource-icon">🛡</div>
           <div class="resource-val">3</div>
           <div class="resource-name">Shield</div>
         </div>
-        <div class="resource-item" onclick="showNotif('📜 Lihat buff aktif!')">
+        <div class="resource-item" onclick="showNotif('✨ View active buffs!')">
           <div class="resource-icon">✨</div>
           <div class="resource-val">2</div>
           <div class="resource-name">Buff</div>
@@ -1062,7 +1248,7 @@
             <div class="battle-card-icon">🐉</div>
             <div class="battle-card-tag tag-normal">Normal</div>
             <div class="battle-card-title">Hunt Monster</div>
-            <div class="battle-card-sub">Lawan monster di alam bebas • Stamina -1</div>
+            <div class="battle-card-sub">Fight monsters in the wild • Stamina -1</div>
           </div>
         </div>
         <div class="battle-card" onclick="openBattleModal('dungeon')" style="background:linear-gradient(135deg,#1a0828,#0a0818)">
@@ -1070,7 +1256,7 @@
             <div class="battle-card-icon">🏰</div>
             <div class="battle-card-tag tag-epic">Epic</div>
             <div class="battle-card-title">Explore Dungeon</div>
-            <div class="battle-card-sub">Masuk dungeon tersembunyi • Stamina -3</div>
+            <div class="battle-card-sub">Enter hidden dungeons • Stamina -3</div>
           </div>
         </div>
         <div class="battle-card" onclick="openBattleModal('arena')" style="background:linear-gradient(135deg,#280a0a,#1e0808)">
@@ -1078,7 +1264,7 @@
             <div class="battle-card-icon">⚔️</div>
             <div class="battle-card-tag tag-pvp">PvP Arena</div>
             <div class="battle-card-title">Arena</div>
-            <div class="battle-card-sub">Lawan hero player lain • Hadiah ranking</div>
+            <div class="battle-card-sub">Challenge other players • Ranking rewards</div>
           </div>
         </div>
       </div>
@@ -1099,41 +1285,41 @@
         <div class="section-title">Guild Minigames</div>
       </div>
       <div class="minigame-grid">
-        <div class="minigame-card" onclick="showNotif('🎰 Slot dimulai!')">
+        <div class="minigame-card" onclick="showNotif('🎰 Slots started!')">
           <div class="minigame-icon">🎰</div>
           <div class="minigame-name">Guild Slots</div>
           <div class="minigame-reward">💎 +50 Gems</div>
-          <div class="minigame-cd">3x per hari</div>
+          <div class="minigame-cd">3x per day</div>
         </div>
-        <div class="minigame-card" onclick="showNotif('🐉 Boss Raid dimulai!')">
+        <div class="minigame-card" onclick="showNotif('🐉 Boss Raid started!')">
           <div class="minigame-icon">🔥</div>
           <div class="minigame-name">Boss Raid</div>
           <div class="minigame-reward">🪙 +10,000 Gold</div>
-          <div class="minigame-cd">Reset 20:00 WIB</div>
+          <div class="minigame-cd">Resets at 20:00</div>
         </div>
-        <div class="minigame-card" onclick="showNotif('🏆 Guild War aktif!')">
+        <div class="minigame-card" onclick="showNotif('🏆 Guild War is active!')">
           <div class="minigame-icon">🏆</div>
           <div class="minigame-name">Guild War</div>
           <div class="minigame-reward">👑 Trophy + Rank</div>
-          <div class="minigame-cd">Senin & Kamis</div>
+          <div class="minigame-cd">Mon & Thu</div>
         </div>
-        <div class="minigame-card" onclick="showNotif('🎪 Festival guild dimulai!')">
+        <div class="minigame-card" onclick="showNotif('🎪 Guild Festival started!')">
           <div class="minigame-icon">🎪</div>
           <div class="minigame-name">Harvest Fest</div>
           <div class="minigame-reward">🌾 Guild Points</div>
-          <div class="minigame-cd">7 hari lagi</div>
+          <div class="minigame-cd">7 days left</div>
         </div>
-        <div class="minigame-card" onclick="showNotif('🔮 Dungeon bersama!')">
+        <div class="minigame-card" onclick="showNotif('🔮 Co-op Dungeon started!')">
           <div class="minigame-icon">🔮</div>
           <div class="minigame-name">Co-op Dungeon</div>
           <div class="minigame-reward">🗡 Rare Equipment</div>
-          <div class="minigame-cd">2x per hari</div>
+          <div class="minigame-cd">2x per day</div>
         </div>
-        <div class="minigame-card" onclick="showNotif('📦 Donasi berhasil!')">
+        <div class="minigame-card" onclick="showNotif('📦 Donation successful!')">
           <div class="minigame-icon">📦</div>
           <div class="minigame-name">Guild Donation</div>
           <div class="minigame-reward">⭐ Contribution</div>
-          <div class="minigame-cd">Setiap hari</div>
+          <div class="minigame-cd">Every day</div>
         </div>
       </div>
 
@@ -1145,25 +1331,25 @@
           <div class="quest-item-icon">🧝</div>
           <div class="quest-item-info">
             <div class="quest-item-name">ElfWarrior99</div>
-            <div class="quest-item-desc" style="color:#6ee7a4">Selesai Boss Raid</div>
+            <div class="quest-item-desc" style="color:#6ee7a4">Completed Boss Raid</div>
           </div>
-          <div style="font-size:10px;color:var(--text-dim)">2m lalu</div>
+          <div style="font-size:10px;color:var(--text-dim)">2m ago</div>
         </div>
         <div class="quest-item" style="cursor:default">
           <div class="quest-item-icon">🧙</div>
           <div class="quest-item-info">
             <div class="quest-item-name">ShadowMageX</div>
-            <div class="quest-item-desc" style="color:var(--accent-gold)">Donasi 5,000 Gold</div>
+            <div class="quest-item-desc" style="color:var(--accent-gold)">Donated 5,000 Gold</div>
           </div>
-          <div style="font-size:10px;color:var(--text-dim)">15m lalu</div>
+          <div style="font-size:10px;color:var(--text-dim)">15m ago</div>
         </div>
         <div class="quest-item" style="cursor:default">
           <div class="quest-item-icon">⚔️</div>
           <div class="quest-item-info">
             <div class="quest-item-name">KnightBlaze</div>
-            <div class="quest-item-desc" style="color:#c084fc">Naik ke Rank #21 Arena</div>
+            <div class="quest-item-desc" style="color:#c084fc">Reached Arena Rank #21</div>
           </div>
-          <div style="font-size:10px;color:var(--text-dim)">1j lalu</div>
+          <div style="font-size:10px;color:var(--text-dim)">1h ago</div>
         </div>
       </div>
     </div>
@@ -1258,7 +1444,7 @@
             <div class="equip-slot-name">Armor</div>
             <div class="equip-slot-item">Dark Robe</div>
           </div>
-          <div class="equip-slot" onclick="showNotif('💍 Slot kosong · Tap untuk equip')">
+          <div class="equip-slot" onclick="showNotif('💍 Empty slot · Tap to equip')">
             <div class="equip-slot-icon" style="opacity:0.3">💍</div>
             <div class="equip-slot-name">Ring</div>
             <div class="equip-slot-item" style="color:var(--text-dim)">Empty</div>
@@ -1278,7 +1464,7 @@
             <div class="quest-item-icon">🔥</div>
             <div class="quest-item-info">
               <div class="quest-item-name">Fireball</div>
-              <div class="quest-item-desc">Lempar bola api ke musuh. Damage 280% Magic</div>
+              <div class="quest-item-desc">Hurl a blazing fireball at enemies. Deals 280% Magic damage.</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.5</div>
@@ -1289,7 +1475,7 @@
             <div class="quest-item-icon">⚡</div>
             <div class="quest-item-info">
               <div class="quest-item-name">Thunder Strike</div>
-              <div class="quest-item-desc">Petir area luas, ada kemungkinan stun musuh</div>
+              <div class="quest-item-desc">Wide-area lightning bolt with a chance to stun enemies.</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.3</div>
@@ -1300,7 +1486,7 @@
             <div class="quest-item-icon">🌙</div>
             <div class="quest-item-info">
               <div class="quest-item-name">Shadow Veil</div>
-              <div class="quest-item-desc">Menyembunyikan diri dalam bayangan, evade +40%</div>
+              <div class="quest-item-desc">Conceal yourself in darkness, granting +40% evasion.</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:10px;color:var(--accent-gold);font-weight:700">LV.7</div>
@@ -1317,13 +1503,13 @@
         <div class="section-title">Daily Check-In</div>
       </div>
       <div class="checkin-grid">
-        <div class="checkin-day done"><div class="checkin-num">Sen</div><div class="checkin-icon">✅</div><div class="checkin-reward">100G</div></div>
-        <div class="checkin-day done"><div class="checkin-num">Sel</div><div class="checkin-icon">✅</div><div class="checkin-reward">💎5</div></div>
-        <div class="checkin-day done"><div class="checkin-num">Rab</div><div class="checkin-icon">✅</div><div class="checkin-reward">300G</div></div>
-        <div class="checkin-day today" onclick="showNotif('✅ Check-in hari ini diklaim!')"><div class="checkin-num">Kam</div><div class="checkin-icon">🎁</div><div class="checkin-reward">💎10</div></div>
-        <div class="checkin-day"><div class="checkin-num">Jum</div><div class="checkin-icon">🔒</div><div class="checkin-reward">500G</div></div>
-        <div class="checkin-day"><div class="checkin-num">Sab</div><div class="checkin-icon">🔒</div><div class="checkin-reward">💎15</div></div>
-        <div class="checkin-day"><div class="checkin-num">Min</div><div class="checkin-icon">👑</div><div class="checkin-reward">Chest</div></div>
+        <div class="checkin-day done"><div class="checkin-num">Mon</div><div class="checkin-icon">✅</div><div class="checkin-reward">100G</div></div>
+        <div class="checkin-day done"><div class="checkin-num">Tue</div><div class="checkin-icon">✅</div><div class="checkin-reward">💎5</div></div>
+        <div class="checkin-day done"><div class="checkin-num">Wed</div><div class="checkin-icon">✅</div><div class="checkin-reward">300G</div></div>
+        <div class="checkin-day today" onclick="showNotif('✅ Today\'s check-in claimed!')"><div class="checkin-num">Thu</div><div class="checkin-icon">🎁</div><div class="checkin-reward">💎10</div></div>
+        <div class="checkin-day"><div class="checkin-num">Fri</div><div class="checkin-icon">🔒</div><div class="checkin-reward">500G</div></div>
+        <div class="checkin-day"><div class="checkin-num">Sat</div><div class="checkin-icon">🔒</div><div class="checkin-reward">💎15</div></div>
+        <div class="checkin-day"><div class="checkin-num">Sun</div><div class="checkin-icon">👑</div><div class="checkin-reward">Chest</div></div>
       </div>
 
       <div style="display:flex; padding:0 16px; gap:6px; margin-bottom:14px; overflow-x:auto; scrollbar-width:none;">
@@ -1338,10 +1524,10 @@
         <div class="quest-item">
           <div class="quest-item-icon">⚔️</div>
           <div class="quest-item-info">
-            <div class="quest-item-name">Battle 5x Hari Ini</div>
-            <div class="quest-item-desc">Menangkan pertarungan apapun</div>
+            <div class="quest-item-name">Win 5 Battles Today</div>
+            <div class="quest-item-desc">Win any type of battle</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:60%"></div></div>
-            <div class="quest-progress-text">3/5 selesai</div>
+            <div class="quest-progress-text">3/5 completed</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip">🪙 500</div>
@@ -1351,10 +1537,10 @@
         <div class="quest-item">
           <div class="quest-item-icon">🧪</div>
           <div class="quest-item-info">
-            <div class="quest-item-name">Craft 3 Potion</div>
-            <div class="quest-item-desc">Buat potion apapun di workshop</div>
+            <div class="quest-item-name">Craft 3 Potions</div>
+            <div class="quest-item-desc">Craft any potion in the workshop</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:33%"></div></div>
-            <div class="quest-progress-text">1/3 selesai</div>
+            <div class="quest-progress-text">1/3 completed</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip">💎 10</div>
@@ -1363,22 +1549,22 @@
         <div class="quest-item">
           <div class="quest-item-icon">🏰</div>
           <div class="quest-item-info">
-            <div class="quest-item-name">Selesaikan Dungeon</div>
-            <div class="quest-item-desc">Masuk dan selesaikan 1 dungeon</div>
+            <div class="quest-item-name">Complete a Dungeon</div>
+            <div class="quest-item-desc">Enter and clear 1 dungeon</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:100%"></div></div>
-            <div class="quest-progress-text">1/1 selesai ✓</div>
+            <div class="quest-progress-text">1/1 completed ✓</div>
           </div>
           <div class="quest-reward">
-            <button class="quest-claim-btn done" onclick="showNotif('✅ Reward sudah diklaim!')">Klaim</button>
+            <button class="quest-claim-btn done" onclick="showNotif('✅ Reward already claimed!')">Claim</button>
           </div>
         </div>
         <div class="quest-item">
           <div class="quest-item-icon">🤝</div>
           <div class="quest-item-info">
-            <div class="quest-item-name">Donasi ke Guild</div>
-            <div class="quest-item-desc">Berikan item atau gold ke guild</div>
+            <div class="quest-item-name">Donate to Guild</div>
+            <div class="quest-item-desc">Contribute items or gold to your guild</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:0%"></div></div>
-            <div class="quest-progress-text">0/1 selesai</div>
+            <div class="quest-progress-text">0/1 completed</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip">🪙 1K</div>
@@ -1392,7 +1578,7 @@
           <div class="quest-item-icon">🏆</div>
           <div class="quest-item-info">
             <div class="quest-item-name">Reach Top 100 Arena</div>
-            <div class="quest-item-desc">Capai ranking 100 besar di PvP Arena</div>
+            <div class="quest-item-desc">Climb to the top 100 in PvP Arena rankings</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:40%"></div></div>
             <div class="quest-progress-text">Rank #247 → #100</div>
           </div>
@@ -1404,10 +1590,10 @@
         <div class="quest-item">
           <div class="quest-item-icon">🐲</div>
           <div class="quest-item-info">
-            <div class="quest-item-name">Kalahkan 3 Boss</div>
-            <div class="quest-item-desc">Selesaikan 3 dungeon boss berbeda</div>
+            <div class="quest-item-name">Defeat 3 Bosses</div>
+            <div class="quest-item-desc">Clear 3 different dungeon bosses</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:66%"></div></div>
-            <div class="quest-progress-text">2/3 selesai</div>
+            <div class="quest-progress-text">2/3 completed</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip">🪙 5K</div>
@@ -1421,9 +1607,9 @@
           <div class="quest-item-icon">🌋</div>
           <div class="quest-item-info">
             <div class="quest-item-name">🔥 Fire Festival Event</div>
-            <div class="quest-item-desc">Kumpulkan 100 Ember dari Fire Dungeon</div>
+            <div class="quest-item-desc">Collect 100 Embers from the Fire Dungeon</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:72%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div>
-            <div class="quest-progress-text">72/100 Ember · 3 hari lagi</div>
+            <div class="quest-progress-text">72/100 Embers · 3 days left</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip" style="color:#fca5a5;border-color:rgba(192,57,43,0.4)">🔥 Dragon Pet</div>
@@ -1433,9 +1619,9 @@
           <div class="quest-item-icon">🌙</div>
           <div class="quest-item-info">
             <div class="quest-item-name">✨ Shadow Moon Event</div>
-            <div class="quest-item-desc">Menangkan 20 PvP di bulan ini</div>
+            <div class="quest-item-desc">Win 20 PvP battles this month</div>
             <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:30%;background:linear-gradient(90deg,#7b2fbe,#c084fc)"></div></div>
-            <div class="quest-progress-text">6/20 wins · 12 hari lagi</div>
+            <div class="quest-progress-text">6/20 wins · 12 days left</div>
           </div>
           <div class="quest-reward">
             <div class="reward-chip" style="color:#c084fc;border-color:rgba(123,47,190,0.4)">👘 Shadow Skin</div>
@@ -1446,14 +1632,14 @@
       <!-- Achievements -->
       <div id="quest-achieve" style="display:none">
         <div class="achieve-grid">
-          <div class="achieve-item unlocked"><div class="achieve-icon">⚔️</div><div class="achieve-name">First Blood</div><div class="achieve-desc">Menang pertarungan pertama</div></div>
-          <div class="achieve-item unlocked"><div class="achieve-icon">🏰</div><div class="achieve-name">Dungeon Diver</div><div class="achieve-desc">Selesaikan 10 dungeon</div></div>
-          <div class="achieve-item unlocked"><div class="achieve-icon">🤝</div><div class="achieve-name">Team Player</div><div class="achieve-desc">Bergabung dengan guild</div></div>
-          <div class="achieve-item"><div class="achieve-icon">💀</div><div class="achieve-name">Boss Slayer</div><div class="achieve-desc">Kalahkan 50 boss dungeon</div></div>
-          <div class="achieve-item"><div class="achieve-icon">👑</div><div class="achieve-name">Arena King</div><div class="achieve-desc">Capai rank #1 arena</div></div>
-          <div class="achieve-item"><div class="achieve-icon">⭐</div><div class="achieve-name">Legendary</div><div class="achieve-desc">Dapatkan item legendary</div></div>
-          <div class="achieve-item unlocked"><div class="achieve-icon">💎</div><div class="achieve-name">Diamond Hand</div><div class="achieve-desc">Kumpulkan 1000 gems</div></div>
-          <div class="achieve-item"><div class="achieve-icon">🌍</div><div class="achieve-name">World Conqueror</div><div class="achieve-desc">Capai level 100</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">⚔️</div><div class="achieve-name">First Blood</div><div class="achieve-desc">Win your first battle</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">🏰</div><div class="achieve-name">Dungeon Diver</div><div class="achieve-desc">Complete 10 dungeons</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">🤝</div><div class="achieve-name">Team Player</div><div class="achieve-desc">Join a guild</div></div>
+          <div class="achieve-item"><div class="achieve-icon">💀</div><div class="achieve-name">Boss Slayer</div><div class="achieve-desc">Defeat 50 dungeon bosses</div></div>
+          <div class="achieve-item"><div class="achieve-icon">👑</div><div class="achieve-name">Arena King</div><div class="achieve-desc">Reach Arena Rank #1</div></div>
+          <div class="achieve-item"><div class="achieve-icon">⭐</div><div class="achieve-name">Legendary</div><div class="achieve-desc">Obtain a legendary item</div></div>
+          <div class="achieve-item unlocked"><div class="achieve-icon">💎</div><div class="achieve-name">Diamond Hand</div><div class="achieve-desc">Collect 1,000 gems</div></div>
+          <div class="achieve-item"><div class="achieve-icon">🌍</div><div class="achieve-name">World Conqueror</div><div class="achieve-desc">Reach level 100</div></div>
         </div>
       </div>
     </div>
@@ -1476,11 +1662,11 @@
           <span class="wallet-balance">48,200</span>
           <span class="wallet-currency">GOLD</span>
         </div>
-        <div style="margin-top:8px;font-size:11px;color:rgba(212,168,67,0.5)">≈ IDR 48,200 in-game value</div>
+        <div style="margin-top:8px;font-size:11px;color:rgba(212,168,67,0.5)">≈ $48.20 in-game value</div>
         <div class="wallet-actions">
-          <button class="wallet-btn wallet-btn-primary" onclick="showNotif('💳 Halaman top-up dibuka!')">Top Up</button>
-          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📤 Transfer gold berhasil!')">Transfer</button>
-          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📊 Riwayat transaksi dibuka!')">History</button>
+          <button class="wallet-btn wallet-btn-primary" onclick="showNotif('💳 Top-up page opened!')">Top Up</button>
+          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📤 Gold transfer successful!')">Transfer</button>
+          <button class="wallet-btn wallet-btn-secondary" onclick="showNotif('📊 Transaction history opened!')">History</button>
         </div>
       </div>
 
@@ -1510,28 +1696,28 @@
         <div class="section-title">Settings & Info</div>
       </div>
       <div class="menu-list">
-        <div class="menu-item" onclick="showNotif('🔔 Notifikasi diatur!')">
+        <div class="menu-item" onclick="showNotif('🔔 Notifications updated!')">
           <div class="menu-item-icon">🔔</div>
           <div class="menu-item-label">Notifications</div>
           <div class="menu-item-value" style="color:#6ee7a4">ON</div>
           <div class="menu-item-arrow">›</div>
         </div>
-        <div class="menu-item" onclick="showNotif('🔒 Keamanan akun!')">
+        <div class="menu-item" onclick="showNotif('🔒 Account security!')">
           <div class="menu-item-icon">🔒</div>
           <div class="menu-item-label">Security</div>
           <div class="menu-item-value">2FA Active</div>
           <div class="menu-item-arrow">›</div>
         </div>
-        <div class="menu-item" onclick="showNotif('🎮 Grafik: High')">
+        <div class="menu-item" onclick="showNotif('🎮 Graphics: High')">
           <div class="menu-item-icon">🎮</div>
           <div class="menu-item-label">Graphics Quality</div>
           <div class="menu-item-value">High</div>
           <div class="menu-item-arrow">›</div>
         </div>
-        <div class="menu-item" onclick="showNotif('🌐 Bahasa: Indonesia')">
+        <div class="menu-item" onclick="showNotif('🌐 Language: English')">
           <div class="menu-item-icon">🌐</div>
           <div class="menu-item-label">Language</div>
-          <div class="menu-item-value">Indonesia</div>
+          <div class="menu-item-value">English</div>
           <div class="menu-item-arrow">›</div>
         </div>
         <div class="menu-item" onclick="showNotif('📋 Terms & Privacy!')">
@@ -1539,7 +1725,7 @@
           <div class="menu-item-label">Terms & Privacy</div>
           <div class="menu-item-arrow">›</div>
         </div>
-        <div class="menu-item" onclick="showNotif('👋 Sampai jumpa lagi!')">
+        <div class="menu-item" onclick="showNotif('👋 See you again!')">
           <div class="menu-item-icon">🚪</div>
           <div class="menu-item-label" style="color:#e74c3c">Log Out</div>
           <div class="menu-item-arrow">›</div>
@@ -1580,7 +1766,7 @@
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">Hunt Monster</div>
-    <div class="modal-sub" id="modal-sub">Pilih aksimu dalam pertarungan!</div>
+    <div class="modal-sub" id="modal-sub">Choose your action in battle!</div>
 
     <div class="battle-stage">
       <div class="battle-enemy" id="battle-enemy-icon">🐉</div>
@@ -1608,12 +1794,12 @@
       <div class="battle-action-btn" onclick="closeBattleModal()">
         <div class="action-icon">🏃</div>
         <div class="action-name">Flee</div>
-        <div class="action-dmg">Tinggalkan pertarungan</div>
+        <div class="action-dmg">Leave the battle</div>
       </div>
     </div>
 
     <div class="battle-log" id="battle-log">
-      ⚔ Pertarungan dimulai! Pilihlah aksimu...
+      ⚔ Battle started! Choose your action...
     </div>
   </div>
 </div>
@@ -1666,13 +1852,13 @@
   const baseStats = {...stats};
 
   function changeStat(stat, delta) {
-    if (delta > 0 && freePoints <= 0) { showNotif('❌ Tidak ada poin tersisa!'); return; }
-    if (delta < 0 && stats[stat] <= baseStats[stat]) { showNotif('❌ Tidak bisa dikurangi lebih!'); return; }
+    if (delta > 0 && freePoints <= 0) { showNotif('❌ No stat points remaining!'); return; }
+    if (delta < 0 && stats[stat] <= baseStats[stat]) { showNotif('❌ Cannot reduce below base value!'); return; }
     stats[stat] += delta;
     freePoints -= delta;
     document.getElementById('stat-' + stat).textContent = stats[stat];
     document.getElementById('stat-points-display').textContent = freePoints + ' Points Free';
-    if (delta > 0) showNotif('✨ +1 ' + stat.toUpperCase() + ' ditambahkan!');
+    if (delta > 0) showNotif('✨ +1 ' + stat.toUpperCase() + ' allocated!');
   }
 
   // === HERO TABS ===
@@ -1700,9 +1886,9 @@
 
   // === BATTLE MODAL ===
   const battleConfig = {
-    hunt: { title: '🐉 Hunt Monster', sub: 'Lawan monster di alam liar! Stamina -1', enemy: '🐉', name: 'Forest Drake', hp: 750, maxHp: 1000 },
-    dungeon: { title: '🏰 Explore Dungeon', sub: 'Masuki dungeon tersembunyi yang berbahaya! Stamina -3', enemy: '👹', name: 'Dungeon Ogre', hp: 1200, maxHp: 1500 },
-    arena: { title: '⚔️ PvP Arena', sub: 'Tantang hero player lain di arena!', enemy: '🧝', name: 'ElvenArcher_88', hp: 900, maxHp: 900 }
+    hunt: { title: '🐉 Hunt Monster', sub: 'Fight monsters in the wild! Stamina -1', enemy: '🐉', name: 'Forest Drake', hp: 750, maxHp: 1000 },
+    dungeon: { title: '🏰 Explore Dungeon', sub: 'Enter a dangerous hidden dungeon! Stamina -3', enemy: '👹', name: 'Dungeon Ogre', hp: 1200, maxHp: 1500 },
+    arena: { title: '⚔️ PvP Arena', sub: 'Challenge another player\'s hero in the arena!', enemy: '🧝', name: 'ElvenArcher_88', hp: 900, maxHp: 900 }
   };
 
   let currentBattle = null;
@@ -1715,7 +1901,7 @@
     document.getElementById('battle-enemy-icon').textContent = cfg.enemy;
     document.getElementById('battle-enemy-name').textContent = cfg.name;
     updateBattleHp();
-    document.getElementById('battle-log').innerHTML = '⚔ Pertarungan dimulai! Pilihlah aksimu...';
+    document.getElementById('battle-log').innerHTML = '⚔ Battle started! Choose your action...';
     document.getElementById('battle-modal').classList.add('open');
   }
 
@@ -1749,23 +1935,23 @@
     if (type === 'normal') {
       dmg = Math.floor(Math.random() * 40 + 80);
       currentBattle.currentHp -= dmg;
-      logMsg = `<span class="log-damage">Kamu menyerang ${currentBattle.name} untuk ${dmg} damage!</span>`;
+      logMsg = `<span class="log-damage">You strike ${currentBattle.name} for ${dmg} damage!</span>`;
       spawnDmgNumber(dmg, '#e74c3c');
     } else if (type === 'magic') {
       dmg = Math.floor(Math.random() * 50 + 150);
       currentBattle.currentHp -= dmg;
-      logMsg = `<span class="log-special">🔥 Fireball menghantam ${currentBattle.name} untuk ${dmg} damage!</span>`;
+      logMsg = `<span class="log-special">🔥 Fireball blasts ${currentBattle.name} for ${dmg} damage!</span>`;
       spawnDmgNumber(dmg, '#f0c96a');
     } else if (type === 'heal') {
       const heal = 100;
-      logMsg = `<span class="log-heal">💊 Kamu menggunakan potion dan memulihkan ${heal} HP!</span>`;
+      logMsg = `<span class="log-heal">💊 You used a potion and restored ${heal} HP!</span>`;
       spawnDmgNumber(-heal, '#6ee7a4');
       updateBattleHp();
       addLog(logMsg);
       // Enemy counterattack
       setTimeout(() => {
         const eDmg = Math.floor(Math.random() * 30 + 40);
-        addLog(`<span class="log-damage">${currentBattle.name} menyerang balik untuk ${eDmg} damage!</span>`);
+        addLog(`<span class="log-damage">${currentBattle.name} strikes back for ${eDmg} damage!</span>`);
       }, 500);
       return;
     }
@@ -1777,7 +1963,7 @@
       setTimeout(() => {
         const gold = Math.floor(Math.random() * 200 + 100);
         const xp = Math.floor(Math.random() * 100 + 50);
-        addLog(`<span class="log-special">🏆 MENANG! Mendapat ${gold} Gold + ${xp} XP!</span>`);
+        addLog(`<span class="log-special">🏆 VICTORY! You earned ${gold} Gold + ${xp} XP!</span>`);
         showNotif(`🏆 Victory! +${gold}G +${xp}XP`);
         setTimeout(closeBattleModal, 1500);
       }, 400);
@@ -1787,7 +1973,7 @@
     // Enemy counterattack
     setTimeout(() => {
       const eDmg = Math.floor(Math.random() * 30 + 40);
-      addLog(`<span class="log-damage">${currentBattle.name} menyerang balik untuk ${eDmg} damage!</span>`);
+      addLog(`<span class="log-damage">${currentBattle.name} strikes back for ${eDmg} damage!</span>`);
     }, 500);
   }
 
@@ -1798,6 +1984,264 @@
   function closeBattleModalOnBg(e) {
     if (e.target === document.getElementById('battle-modal')) closeBattleModal();
   }
+</script>
+
+<!-- ====== TUTORIAL ONBOARDING ====== -->
+
+<!-- Welcome Screen -->
+<div class="tut-welcome" id="tut-welcome">
+  <div class="tut-welcome-logo">🧙</div>
+  <div class="tut-welcome-title">SHADOWREALM</div>
+  <div class="tut-welcome-sub">Welcome, Adventurer!<br>The shadow world awaits you. Let's learn the basics of surviving in ShadowRealm.</div>
+  <button class="tut-welcome-btn" onclick="startTutorial()">⚔ Begin Your Adventure</button>
+  <div class="tut-welcome-skip" onclick="endTutorial()">Skip tutorial</div>
+</div>
+
+<!-- Spotlight element -->
+<div class="tut-spotlight" id="tut-spotlight" style="display:none"></div>
+
+<!-- Tutorial overlay dim -->
+<div class="tut-overlay" id="tut-overlay"></div>
+
+<!-- Tutorial card -->
+<div class="tut-card" id="tut-card" style="display:none; bottom: 90px;">
+  <div class="tut-header">
+    <div class="tut-step-badge">
+      <span id="tut-step-label">STEP 1 / 6</span>
+    </div>
+    <div class="tut-dots" id="tut-dots"></div>
+  </div>
+  <div class="tut-icon" id="tut-icon">⚔️</div>
+  <div class="tut-title" id="tut-title">Battle Arena</div>
+  <div class="tut-desc" id="tut-desc">Ini adalah area pertarungan kamu.</div>
+  <div class="tut-actions">
+    <button class="tut-btn-skip" onclick="endTutorial()">Skip</button>
+    <button class="tut-btn-next" id="tut-next-btn" onclick="nextTutStep()">Next →</button>
+  </div>
+</div>
+
+<!-- Reward popup -->
+<div class="tut-reward-popup" id="tut-reward">
+  <div class="tut-reward-icon">🎁</div>
+  <div class="tut-reward-title">Tutorial Complete!</div>
+  <div class="tut-reward-desc">Congratulations! You've finished the tutorial.<br>Here are your starter rewards:</div>
+  <div style="display:flex;justify-content:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+    <div class="stat-chip"><span>🪙</span><span>5,000 Gold</span></div>
+    <div class="stat-chip"><span>💎</span><span>50 Gems</span></div>
+    <div class="stat-chip"><span>⚡</span><span>10 Stamina</span></div>
+    <div class="stat-chip"><span>💊</span><span>5 Potions</span></div>
+  </div>
+  <button class="tut-reward-btn" onclick="closeTutReward()">✨ Claim Rewards!</button>
+</div>
+
+<script>
+  // ======== TUTORIAL SYSTEM ========
+  const TUT_KEY = 'shadowrealm_tut_done';
+
+  const tutSteps = [
+    {
+      icon: '⚔️',
+      title: 'Battle Modes',
+      desc: 'On the <strong>Battle</strong> screen, choose from 3 fight modes: <span class="highlight">Hunt Monster</span> to fight wild monsters, <span class="highlight">Explore Dungeon</span> for epic loot dungeons, and <span class="highlight">PvP Arena</span> to challenge other players\' heroes.',
+      target: 'screen-battle',
+      spotEl: null,
+      navIdx: 0,
+    },
+    {
+      icon: '⚡',
+      title: 'Stamina & Resources',
+      desc: 'Every battle costs <strong>Stamina</strong>. Keep an eye on your Stamina, HP, MP, and XP at the top of the Battle screen. Use a <span class="highlight">Potion</span> when your HP gets low!',
+      target: 'screen-battle',
+      spotEl: '.resource-grid',
+      navIdx: 0,
+    },
+    {
+      icon: '🏯',
+      title: 'Guild & Minigames',
+      desc: 'Join a <strong>Guild</strong> to unlock fun minigames like <span class="highlight">Boss Raid</span>, <span class="highlight">Guild War</span>, and <span class="highlight">Co-op Dungeon</span>. Complete them together for bigger rewards!',
+      target: 'screen-guild',
+      spotEl: '.minigame-grid',
+      navIdx: 1,
+    },
+    {
+      icon: '🧙',
+      title: 'Hero & Stats',
+      desc: 'In the <strong>Heroes</strong> tab, view your hero profile and <span class="highlight">allocate stat points</span> (ATK, DEF, SPD, MAG, VIT). You can also equip items and upgrade your hero\'s skills!',
+      target: 'screen-heroes',
+      spotEl: '.stat-allocator',
+      navIdx: 2,
+    },
+    {
+      icon: '📜',
+      title: 'Quests & Check-In',
+      desc: 'Don\'t forget to <span class="highlight">Check-In daily</span> for free rewards! Complete <strong>Daily & Weekly Quests</strong> to earn Gold, Gems, and rare items.',
+      target: 'screen-quests',
+      spotEl: '.checkin-grid',
+      navIdx: 3,
+    },
+    {
+      icon: '👤',
+      title: 'Account & Wallet',
+      desc: 'In the <strong>Account</strong> tab, monitor your <span class="highlight">Wallet Balance</span>, all currencies (Gold, Gems, Star Points), and manage account settings. Top Up anytime to accelerate your progress!',
+      target: 'screen-account',
+      spotEl: '.wallet-card',
+      navIdx: 4,
+    },
+  ];
+
+  let tutStep = 0;
+
+  function buildDots() {
+    const dots = document.getElementById('tut-dots');
+    dots.innerHTML = '';
+    tutSteps.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'tut-dot' + (i === tutStep ? ' active' : '');
+      dots.appendChild(d);
+    });
+  }
+
+  function positionSpotlight(selector) {
+    const spot = document.getElementById('tut-spotlight');
+    if (!selector) { spot.style.display = 'none'; return; }
+    const el = document.querySelector(selector);
+    if (!el) { spot.style.display = 'none'; return; }
+    const r = el.getBoundingClientRect();
+    spot.style.display = 'block';
+    spot.style.top = (r.top - 6) + 'px';
+    spot.style.left = (r.left - 6) + 'px';
+    spot.style.width = (r.width + 12) + 'px';
+    spot.style.height = (r.height + 12) + 'px';
+  }
+
+  function positionCard() {
+    const card = document.getElementById('tut-card');
+    const spot = document.getElementById('tut-spotlight');
+    if (spot.style.display === 'none') {
+      card.style.bottom = '90px';
+      card.style.top = 'auto';
+      return;
+    }
+    const spotTop = parseFloat(spot.style.top);
+    const spotH = parseFloat(spot.style.height);
+    const winH = window.innerHeight;
+    // If spotlight is in lower half, put card higher
+    if (spotTop + spotH > winH * 0.5) {
+      card.style.bottom = 'auto';
+      card.style.top = '80px';
+    } else {
+      card.style.top = 'auto';
+      card.style.bottom = '90px';
+    }
+  }
+
+  function showTutStep() {
+    const step = tutSteps[tutStep];
+
+    // Switch to the relevant screen
+    const navItems = document.querySelectorAll('.nav-item');
+    switchScreen(step.target.replace('screen-',''), navItems[step.navIdx]);
+
+    // Scroll to top
+    setTimeout(() => {
+      document.querySelector('.content').scrollTop = 0;
+
+      // Update card content
+      document.getElementById('tut-icon').textContent = step.icon;
+      document.getElementById('tut-title').textContent = step.title;
+      document.getElementById('tut-desc').innerHTML = step.desc;
+      document.getElementById('tut-step-label').textContent = `STEP ${tutStep+1} / ${tutSteps.length}`;
+
+      const isLast = tutStep === tutSteps.length - 1;
+      document.getElementById('tut-next-btn').textContent = isLast ? '✅ Finish!' : 'Next →';
+
+      buildDots();
+
+      // Position spotlight
+      setTimeout(() => {
+        positionSpotlight(step.spotEl);
+        positionCard();
+      }, 200);
+
+    }, 100);
+  }
+
+  function startTutorial() {
+    // Hide welcome screen
+    const welcome = document.getElementById('tut-welcome');
+    welcome.style.animation = 'fadeOut 0.4s ease forwards';
+    setTimeout(() => welcome.style.display = 'none', 400);
+
+    // Show overlay + card
+    const overlay = document.getElementById('tut-overlay');
+    overlay.classList.add('active', 'dim');
+
+    document.getElementById('tut-card').style.display = 'block';
+
+    tutStep = 0;
+    showTutStep();
+  }
+
+  function nextTutStep() {
+    if (tutStep < tutSteps.length - 1) {
+      tutStep++;
+      // animate card out then in
+      const card = document.getElementById('tut-card');
+      card.style.opacity = '0';
+      card.style.transform = 'translateX(-50%) translateY(10px)';
+      setTimeout(() => {
+        card.style.transition = 'none';
+        card.style.opacity = '1';
+        card.style.transform = 'translateX(-50%) translateY(0)';
+        showTutStep();
+        setTimeout(() => { card.style.transition = ''; }, 50);
+      }, 200);
+    } else {
+      // Done!
+      endTutorialWithReward();
+    }
+  }
+
+  function endTutorialWithReward() {
+    // Hide tutorial UI
+    document.getElementById('tut-card').style.display = 'none';
+    document.getElementById('tut-spotlight').style.display = 'none';
+    document.getElementById('tut-overlay').classList.remove('active', 'dim');
+
+    // Show reward
+    document.getElementById('tut-reward').classList.add('show');
+
+    localStorage.setItem(TUT_KEY, '1');
+  }
+
+  function endTutorial() {
+    document.getElementById('tut-welcome').style.display = 'none';
+    document.getElementById('tut-card').style.display = 'none';
+    document.getElementById('tut-spotlight').style.display = 'none';
+    document.getElementById('tut-overlay').classList.remove('active', 'dim');
+    localStorage.setItem(TUT_KEY, '1');
+  }
+
+  function closeTutReward() {
+    document.getElementById('tut-reward').classList.remove('show');
+    document.getElementById('tut-reward').style.display = 'none';
+    // Give rewards visually
+    document.getElementById('topbar-gold').textContent = '53.2K';
+    document.getElementById('topbar-gems').textContent = '1,290';
+    showNotif('🎉 Tutorial rewards claimed! +5K Gold +50 Gems');
+  }
+
+  // Check if already done tutorial
+  window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem(TUT_KEY)) {
+      document.getElementById('tut-welcome').style.display = 'none';
+    }
+  });
+
+  // fadeOut keyframe injection
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `@keyframes fadeOut { from{opacity:1} to{opacity:0} }`;
+  document.head.appendChild(styleEl);
 </script>
 </body>
 </html>
